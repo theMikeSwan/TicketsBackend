@@ -15,12 +15,16 @@ struct TicketController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let tickets = routes.grouped("tickets")
         tickets.get(use: readAll)
+        tickets.get(":\(ticketID)", use: read)
         tickets.post(use: create)
-        tickets.group(":\(ticketID)") { ticket in
-            tickets.delete(use: delete)
+        tickets.patch(":\(ticketID)", use: update)
+        tickets.delete(":\(ticketID)", use: delete)
+        // This doesn't seem to work for some reason.
+//        tickets.group(":\(ticketID)") { ticket in
+//            tickets.delete(use: delete)
 //            tickets.get(use: read)
-            tickets.patch(use: update)
-        }
+//            tickets.patch(use: update)
+//        }
     }
 
     func readAll(req: Request) throws -> EventLoopFuture<Page<TicketDTO>> {
@@ -37,7 +41,10 @@ struct TicketController: RouteCollection {
     
 
     func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
-        return Ticket.find(req.parameters.get(ticketID), on: req.db)
+        guard let id = req.parameters.get(ticketID, as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        return Ticket.find(id, on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { $0.delete(on: req.db) }
             .transform(to: .ok)
