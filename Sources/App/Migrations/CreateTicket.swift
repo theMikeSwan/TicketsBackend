@@ -17,6 +17,7 @@ struct CreateTicket: Migration {
             .field(Ticket.FieldKeys.size, .string, .required)
             .field(Ticket.FieldKeys.status, .string)
             .field(Ticket.FieldKeys.dateCreated, .date, .required)
+            .field(Ticket.FieldKeys.type, .string)
             .create()
     }
 

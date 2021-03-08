@@ -18,6 +18,7 @@ public final class Ticket: Model {
         static var size: FieldKey { "size" }
         static var dateCreated: FieldKey { "dateCreated" }
         static var status: FieldKey { "status" }
+        static var type: FieldKey { "type" }
     }
     
     @ID(key: .id)
@@ -34,10 +35,14 @@ public final class Ticket: Model {
     public var dateCreated: Date
     @Field(key: FieldKeys.status)
     public var status: TicketStatus
+    @Children(for: \.$ticket)
+    public var history: [TicketHistory]
+    @Field(key: FieldKeys.type)
+    public var type: TicketType
     
     public static var schema = "tickets"
     
-    public init(id: UUID?, number: String, summary: String, detail: String, size: String, dateCreated: Date = Date(), status: TicketStatus) {
+    public init(id: UUID?, number: String, summary: String, detail: String, size: String, dateCreated: Date = Date(), status: TicketStatus, type: TicketType) {
         self.id = id
         self.number = number
         self.summary = summary
@@ -45,10 +50,11 @@ public final class Ticket: Model {
         self.size = size
         self.dateCreated = dateCreated
         self.status = status
+        self.type = type
     }
     
-    public convenience init(ticket: TTShared.TicketDTO) {
-        self.init(id: ticket.id, number: ticket.number, summary: ticket.summary, detail: ticket.detail, size: ticket.size, dateCreated: ticket.dateCreated, status: ticket.status)
+    public convenience init(ticket: TicketDTO) {
+        self.init(id: ticket.id, number: ticket.number, summary: ticket.summary, detail: ticket.detail, size: ticket.size, dateCreated: ticket.dateCreated, status: ticket.status, type: ticket.type)
     }
     
     public init() {  }

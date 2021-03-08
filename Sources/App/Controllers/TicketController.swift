@@ -69,10 +69,14 @@ struct TicketController: RouteCollection {
         return Ticket.find(id, on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { ticket in
+                // Things like ticket number and date created can't be changed so we ignore them here.
                 ticket.summary = input.summary
                 ticket.detail = input.detail
                 ticket.size = input.size
-                ticket.status = input.status
+                if ticket.status != input.status {
+                    ticket.status = input.status
+                    ticket.history.append(TicketHistory(id: nil, status: ticket.status, ticketId: id))
+                }
                 return ticket.save(on: req.db)
                     .map { TicketDTO(ticket: ticket) }
             }

@@ -17,6 +17,7 @@ public func configure(_ app: Application) throws {
     ), as: .mysql)
 
     app.migrations.add(CreateTicket())
+    app.migrations.add(CreateTicketHistory())
 
     // register routes
     try routes(app)
