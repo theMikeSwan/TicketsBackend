@@ -16,6 +16,7 @@ struct CreateTicketHistory: Migration {
             .field(TicketHistory.FieldKeys.status, .string, .required)
             .field(TicketHistory.FieldKeys.ticket, .uuid)
             .foreignKey(TicketHistory.FieldKeys.ticket, references: Ticket.schema, .id, onDelete: .cascade, onUpdate: .noAction)
+            .unique(on: TicketHistory.FieldKeys.ticket)
             .create()
     }
 

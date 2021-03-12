@@ -19,6 +19,7 @@ struct TicketController: RouteCollection {
         tickets.post(use: create)
         tickets.patch(":\(ticketID)", use: update)
         tickets.delete(":\(ticketID)", use: delete)
+        tickets.get(":\(ticketID)", "history", use: ticketHistory)
         // This doesn't seem to work for some reason.
 //        tickets.group(":\(ticketID)") { ticket in
 //            tickets.delete(use: delete)
@@ -75,10 +76,30 @@ struct TicketController: RouteCollection {
                 ticket.size = input.size
                 if ticket.status != input.status {
                     ticket.status = input.status
-                    ticket.history.append(TicketHistory(id: nil, status: ticket.status, ticketId: id))
+                    let history = TicketHistory(id: nil, status: ticket.status, ticketId: id)
+                    // The docs don't have the `_ =` at the start, but the compiler issues an unused result warning.
+                    _ = ticket.$history.create(history, on: req.db)
                 }
                 return ticket.save(on: req.db)
                     .map { TicketDTO(ticket: ticket) }
             }
+    }
+    
+    func ticketHistory(req: Request) throws -> EventLoopFuture<[TicketHistoryDTO]> {
+        guard let id = req.parameters.get(ticketID, as: UUID.self) else {
+            throw Abort(.badRequest)
+        }
+        return Ticket.query(on: req.db)
+            .filter(\.$id == id)
+            .with(\.$history)
+            .first()
+            .unwrap(or: Abort(.notFound))
+            .map { ticket in
+                var historyArray = [TicketHistoryDTO]()
+                for item in ticket.history {
+                    historyArray.append(TicketHistoryDTO(ticketHistory: item))
+                }
+                return historyArray
+        }
     }
 }
