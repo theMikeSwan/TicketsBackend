@@ -29,15 +29,25 @@ struct TicketController: RouteCollection {
     }
 
     func readAll(req: Request) throws -> EventLoopFuture<Page<TicketDTO>> {
-        return Ticket.query(on: req.db).paginate(for: req).map { page in
-            page.map { TicketDTO(ticket: $0) }
-        }
+        return Ticket.query(on: req.db)
+            .with(\.$assignee)
+            .paginate(for: req)
+            .map { page in
+                page.map { TicketDTO(ticket: $0, assignee: UserDTO(user: $0.assignee)) }
+            }
     }
     
     func create(req: Request) throws -> EventLoopFuture<TicketDTO> {
         let ticketDto = try req.content.decode(TicketDTO.self)
+        let assigneeDTO = ticketDto.assignee
+        // We force unwrap the assignee ID when creating a Ticket from TicketDTO, verify it has a value here to save the crash later.
+        // Also a ticket has to have someone assigned to it even from the start.
+        guard assigneeDTO.id != nil else {
+            throw Abort(.badRequest)
+        }
+        // TODO: Make sure the user actually exists before createing the ticket
         let ticket = Ticket(ticket: ticketDto)
-        return ticket.save(on: req.db).map { TicketDTO(ticket: ticket) }
+        return ticket.save(on: req.db).map { TicketDTO(ticket: ticket, assignee: assigneeDTO) }
     }
     
 
@@ -56,9 +66,12 @@ struct TicketController: RouteCollection {
         guard let id = req.parameters.get(ticketID, as: UUID.self) else {
             throw Abort(.badRequest)
         }
-        return Ticket.find(id, on: req.db)
+        return Ticket.query(on: req.db)
+            .filter(\.$id == id)
+            .with(\.$assignee)
+            .first()
             .unwrap(or: Abort(.notFound))
-            .map { TicketDTO(ticket: $0) }
+            .map { TicketDTO(ticket: $0, assignee: UserDTO(user: $0.assignee)) }
     }
     
     
@@ -67,7 +80,10 @@ struct TicketController: RouteCollection {
             throw Abort(.badRequest)
         }
         let input = try req.content.decode(TicketDTO.self)
-        return Ticket.find(id, on: req.db)
+        return Ticket.query(on: req.db)
+            .filter(\.$id == id)
+            .with(\.$assignee)
+            .first()
             .unwrap(or: Abort(.notFound))
             .flatMap { ticket in
                 // Things like ticket number and date created can't be changed so we ignore them here.
@@ -81,7 +97,7 @@ struct TicketController: RouteCollection {
                     _ = ticket.$history.create(history, on: req.db)
                 }
                 return ticket.save(on: req.db)
-                    .map { TicketDTO(ticket: ticket) }
+                    .map { TicketDTO(ticket: ticket, assignee: UserDTO(user: ticket.assignee)) }
             }
     }
     
@@ -100,6 +116,6 @@ struct TicketController: RouteCollection {
                     historyArray.append(TicketHistoryDTO(ticketHistory: item))
                 }
                 return historyArray
-        }
+            }
     }
 }

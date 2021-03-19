@@ -11,7 +11,7 @@ import Vapor
 import Fluent
 
 extension TicketDTO: Content {
-    public convenience init(ticket: Ticket) {
-        self.init(id: ticket.id, number: ticket.number, summary: ticket.summary, detail: ticket.detail, size: ticket.size, dateCreated: ticket.dateCreated, status: ticket.status, type: ticket.type)
+    public convenience init(ticket: Ticket, assignee: UserDTO) {
+        self.init(id: ticket.id, number: ticket.number, summary: ticket.summary, detail: ticket.detail, size: ticket.size, dateCreated: ticket.dateCreated, status: ticket.status, type: ticket.type, assignee: assignee)
     }
 }

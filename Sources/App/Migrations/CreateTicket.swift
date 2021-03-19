@@ -18,6 +18,9 @@ struct CreateTicket: Migration {
             .field(Ticket.FieldKeys.status, .string)
             .field(Ticket.FieldKeys.dateCreated, .date, .required)
             .field(Ticket.FieldKeys.type, .string)
+            .field(Ticket.FieldKeys.assignee, .uuid)
+            .foreignKey(Ticket.FieldKeys.assignee, references: User.schema, .id, onDelete: .setNull, onUpdate: .noAction)
+            .unique(on: Ticket.FieldKeys.assignee)
             .create()
     }
 

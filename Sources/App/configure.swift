@@ -16,6 +16,7 @@ public func configure(_ app: Application) throws {
         tlsConfiguration: .forClient(certificateVerification: .none)
     ), as: .mysql)
 
+    app.migrations.add(CreateUser())
     app.migrations.add(CreateTicket())
     app.migrations.add(CreateTicketHistory())
 
