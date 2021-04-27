@@ -95,9 +95,10 @@ struct UserController: RouteCollection {
         guard let uID = req.parameters.get(userID, as: UUID.self), let tID = req.parameters.get(ticketID, as: UUID.self) else {
             throw Abort(.badRequest)
         }
-        return User.find(uID, on: req.db)
-            .unwrap(or: Abort(.notFound))
-            .map { user in
+        let userQuery = User.find(uID, on: req.db).unwrap(or: Abort(.notFound))
+        let ticketQuery = Ticket.find(tID, on: req.db).unwrap(or: Abort(.notFound))
+        return userQuery.and(ticketQuery)
+            .flatMap { user, _ in
                 return Ticket.query(on: req.db)
                     .filter(\.$id == tID)
                     .set(\.$assignee.$id, to: uID)

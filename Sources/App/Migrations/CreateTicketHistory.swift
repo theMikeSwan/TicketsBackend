@@ -6,7 +6,6 @@
 //
 
 import Fluent
-import TTShared
 
 struct CreateTicketHistory: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
@@ -16,7 +15,6 @@ struct CreateTicketHistory: Migration {
             .field(TicketHistory.FieldKeys.status, .string, .required)
             .field(TicketHistory.FieldKeys.ticket, .uuid)
             .foreignKey(TicketHistory.FieldKeys.ticket, references: Ticket.schema, .id, onDelete: .cascade, onUpdate: .noAction)
-            .unique(on: TicketHistory.FieldKeys.ticket)
             .create()
     }
 

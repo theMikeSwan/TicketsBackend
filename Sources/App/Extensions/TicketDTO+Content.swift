@@ -8,7 +8,6 @@
 import Foundation
 import TTShared
 import Vapor
-import Fluent
 
 extension TicketDTO: Content {
     public convenience init(ticket: Ticket, assignee: UserDTO) {
