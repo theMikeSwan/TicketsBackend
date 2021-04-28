@@ -19,6 +19,7 @@ public final class Ticket: Model {
         static var dateCreated: FieldKey { "dateCreated" }
         static var status: FieldKey { "status" }
         static var type: FieldKey { "type" }
+        static var assignee: FieldKey { "assignee" }
     }
     
     @ID(key: .id)
@@ -39,10 +40,13 @@ public final class Ticket: Model {
     public var history: [TicketHistory]
     @Field(key: FieldKeys.type)
     public var type: TicketType
+    // TODO: Consider making this an optional parent so it can be empty when a ticket is first created. This will complicate other things a bit but will simplify the overall flow.
+    @Parent(key: FieldKeys.assignee)
+    var assignee: User
     
     public static var schema = "tickets"
     
-    public init(id: UUID?, number: String, summary: String, detail: String, size: String, dateCreated: Date = Date(), status: TicketStatus, type: TicketType) {
+    public init(id: UUID?, number: String, summary: String, detail: String, size: String, dateCreated: Date = Date(), status: TicketStatus, type: TicketType, assignee: UUID) {
         self.id = id
         self.number = number
         self.summary = summary
@@ -51,10 +55,11 @@ public final class Ticket: Model {
         self.dateCreated = dateCreated
         self.status = status
         self.type = type
+        self.$assignee.id = assignee
     }
     
     public convenience init(ticket: TicketDTO) {
-        self.init(id: ticket.id, number: ticket.number, summary: ticket.summary, detail: ticket.detail, size: ticket.size, dateCreated: ticket.dateCreated, status: ticket.status, type: ticket.type)
+        self.init(id: ticket.id, number: ticket.number, summary: ticket.summary, detail: ticket.detail, size: ticket.size, dateCreated: ticket.dateCreated, status: ticket.status, type: ticket.type, assignee: ticket.assignee.id!)
     }
     
     public init() {  }
