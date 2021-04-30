@@ -22,7 +22,6 @@ let package = Package(
                 .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "TTShared", package: "TicketTracker-Shared")
-                
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
