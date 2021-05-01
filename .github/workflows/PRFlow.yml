@@ -8,11 +8,17 @@ jobs:
     services:
       postgres:
         image: postgres:latest
-        ports: [ 5432:5433 ]
+        ports: 
+          - 5432:5433
         env:
           POSTGRES_USER: vapor_username
           POSTGRES_PASSWORD: vapor_password
           POSTGRES_DB: vapor-test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Setup Swift
         uses: fwal/setup-swift@v1
