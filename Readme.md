@@ -9,6 +9,9 @@ Learning more about Vapor is also a major goal of this project.
 
 At present you can do all the CRUD functions on tickets and users. Users currently only have a name and email address. Tickets have a number, summary, detail, type, status, date created, size, and assignee. They also track their status history so you can see when a ticket went from todo to in progress.
 
+## Known Issues
+Currently if you delete a user that still has tickets assigned those tickets will no longer be accessible. The only work around if you delete a user with tickets is to manually edit the db directly. This should be fixed soon.
+
 ## Running
 TickerTracker is still in its infancy at the moment but you can run the backend and experiment with something like Postman or RESTed.
 
