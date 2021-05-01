@@ -1,21 +1,18 @@
 on: pull_request
 name: PR Check
 jobs:
-  dependents:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        ports:
-          5432:5433
-        env:
-          POSTGRES_USER: vapor_username
-          POSTGRES_PASSWORD: vapor_password
-          POSTGRES_DB: vapor-test
 
   ubuntu_test:
     name: Test - ubuntu
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        ports: [ 5432:5433 ]
+        env:
+          POSTGRES_USER: vapor_username
+          POSTGRES_PASSWORD: vapor_password
+          POSTGRES_DB: vapor-test
     steps:
       - name: Setup Swift
         uses: fwal/setup-swift@v1
