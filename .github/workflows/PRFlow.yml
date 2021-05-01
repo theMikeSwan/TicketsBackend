@@ -1,19 +1,17 @@
 on: pull_request
 name: PR Check
 jobs:
-  macos_test:
-    name: Test - macOS
-    runs-on: macOS-latest
-    strategy:
-        matrix:
-          destination: ['platform=macOS']
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build and test
-        run: swift test --enable-test-discovery --enable-code-coverage
+  dependents:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          5432:5433
         env:
-         destination: ${{ matrix.destination }}
+          POSTGRES_USER: vapor_username
+          POSTGRES_PASSWORD: vapor_password
+          POSTGRES_DB: vapor-test
 
   ubuntu_test:
     name: Test - ubuntu
@@ -33,4 +31,3 @@ jobs:
         run: swift test --enable-test-discovery --enable-code-coverage
       - name: Test coverage
         uses: maxep/spm-lcov-action@0.3.0
-
