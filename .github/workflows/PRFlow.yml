@@ -1,20 +1,36 @@
-
-name: PR Flow
-
-on:
-  pull_request:
-    branches: 
-      - main 
-      - develop
-
+on: pull_request
+name: PR Check
 jobs:
-  build:
 
-    runs-on: macos-latest
-
+  ubuntu_test:
+    name: Test - ubuntu
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        ports: 
+          - 5433:5432
+        env:
+          POSTGRES_USER: vapor_username
+          POSTGRES_PASSWORD: vapor_password
+          POSTGRES_DB: vapor-test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - name: Setup Swift
+        uses: fwal/setup-swift@v1
+        with:
+          swift-version: "5.3"
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: GitHub Action for SwiftLint (Only files changed in the PR)
+        uses: norio-nomura/action-swiftlint@3.2.1
+        env:
+          DIFF_BASE: ${{ github.base_ref }}
+      - name: Build and test
+        run: swift test --enable-test-discovery --enable-code-coverage
+      - name: Test coverage
+        uses: maxep/spm-lcov-action@0.3.0

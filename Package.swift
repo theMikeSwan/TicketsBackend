@@ -10,15 +10,18 @@ let package = Package(
         // 💧 A server-side Swift web framework.
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
-        .package(url: "https://github.com/vapor/fluent-mysql-driver.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
+        .package(url: "https://github.com/theMikeSwan/TicketTracker-Shared.git", from: "0.1.1-beta")
+//        .package(name: "TicketTracker-Shared", path: "../TTShared")
     ],
     targets: [
         .target(
             name: "App",
             dependencies: [
                 .product(name: "Fluent", package: "fluent"),
-                .product(name: "FluentMySQLDriver", package: "fluent-mysql-driver"),
-                .product(name: "Vapor", package: "vapor")
+                .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "TTShared", package: "TicketTracker-Shared")
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
